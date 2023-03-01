@@ -1,0 +1,61 @@
+clear all; clear; clc
+
+R = 287;
+gam = 1.4;
+gam1 = 0.2;
+gam2 = 1.2;
+gam3 = gam1/gam2;
+beta = 27.2;
+M_inf = 2.58;
+P_inf = 13.64; % kPa
+T_inf = 313.41; % K
+theta = 5.71;
+
+disp('oblique shock' )
+
+M_inf_n = M_inf .* sind(beta)
+M_inf_t = M_inf .* cosd(beta)
+
+M1 = sqrt(   ( ((gam1.*((M_inf).^2))+1) ./ ((gam.*((M_inf_n).^2)) - gam1) )...
+    +  (((M_inf_t).^2) ./ ((gam1.*((M_inf_n).^2)) +1) ) )
+
+P_1_P_inf = ((gam.*((M_inf_n).^2)) - gam1)./gam2
+
+P_1 = P_1_P_inf.*P_inf
+
+%M1_n = M1 .* sind(beta-theta);
+
+T_1_T_inf = (((gam1 .* ((M_inf_n).^2)) +1) .* ((gam .* ((M_inf_n).^2)) -gam1))...
+    ./ ((gam2.*M_inf_n).^2)
+
+T_1 = T_1_T_inf.*T_inf
+
+disp('expansion fan' )
+
+% Prandtl meyer function
+v_inf = (1./sqrt(gam3)) .* atand(sqrt(gam3 .* ( (M_inf.^2)-1))) - atand(  sqrt( (M_inf.^2)-1))
+
+%Approximated inverse function
+alpha = 5.71;
+nu = v_inf + alpha;% 52.757; 
+nu = nu.* (pi()./180);
+
+nu_inf = (pi()./2).*(sqrt(6)-1);
+y = (nu./nu_inf).^(2/3);
+M2 = (1 + (1.360.*y) + (0.0962.*(y.^2)) - (0.5127.*(y.^3)) )...
+    ./ ( 1 - (0.6722.*y) - (0.3278.*(y.^2)) )
+
+T_2_T_inf = (1+ (gam1.* (M_inf.^2)) ) ./ (1+ (gam1.* (M2.^2)) )
+
+T2 = T_inf .* T_2_T_inf
+
+
+P_2_P_inf = T_2_T_inf .^ (gam./(gam-1))
+
+P_2 = P_2_P_inf .* P_inf
+
+beta1 = asind(1/M_inf)
+beta_max = beta1;
+beta2 = asind(1/M2)
+beta_min = beta2 - alpha;
+fan_angle = beta_max - beta_min
