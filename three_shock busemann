@@ -1,0 +1,21 @@
+clear all; clear; clc
+
+beta1 = 22.71;
+beta2 = 23.92;
+beta3 = 27.64;
+theta1 = 3;
+theta2 = 3;
+theta3 = theta1 + theta2;
+betaM = beta3 - theta3;
+c = 0.64;
+t = 0.1 * c;
+
+q = (c/2) + (t / (2*tand(betaM)));
+p = ((1/(2*(tand(beta2)-tand(theta1)))) * ((tand(beta2)/tand(beta1))-1) ) +...
+    ( (1/(2*tand(beta1))) * ( (tand(beta1)-tand(theta1))/ (tand(beta2)-tand(theta1)) ) ) +...
+   ( 1/(2*tand(betaM)));
+z = q /p
+
+a = ( z / (2*(tand(beta2) - tand(theta1))) ) * ( (tand(beta2)/tand(beta1) ) -1)
+b = ( z/(2*tand(beta1)) )* (  (tand(beta1) - tand(theta1)) / ( tand(beta2) - tand(theta1)) )
+d = (z-t) / (2*tand(betaM))
