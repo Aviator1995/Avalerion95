@@ -1,0 +1,75 @@
+clear all; clear; clc
+
+z_total = 0.170/2; % half width (m)
+h_total = (0.171 - 0.064)/2; % half throat width
+delta_z = 0.00001; % width interal (m)
+c = 1; % cord length aerofoil
+a = 0.184; % reference lengths 
+b = 0.447; % reference lengths
+d = 0.32;  % reference lengths
+P_upper = 5.697; % kPa
+p_l = 9.082; % kPa
+p_1 = 13.64; % kPa
+p_2 = 19.86; % kPa
+p_3 = 13.64; % kPa
+alpha = 3;   % Angle of incidence (deg)
+
+beta1 = 24.83; % shock angle 1 (deg)
+beta2 = 21.49; % shock angle 2 (deg)
+beta3 = 22.79; % shock angle 3 (deg)
+theta1 = 5.71; % ramp angle 1  (deg)
+
+% preallocate memory
+length = z_total/delta_z; % No. of strips
+table = zeros(length,11);
+z = 0; % initial width
+
+% 1    2     3     4     5      6     7        8      9   10   11
+% z , l_1 , l_2 , l_3 , l_l2 , l_4 , l_l1 , delta_P , F , FL , FD , 
+
+for i = 1:1:length,
+    
+    if z <= h_total,
+        
+    table(i,1) = delta_z+z;
+    table(i,2) = ((z + delta_z)./tand(beta1)) + ((z + delta_z)./tand(beta2));
+    table(i,3) = (b-a) - (((z + delta_z)./tand(beta2)) + ((z + delta_z)./tand(beta3)));
+    table(i,4) = (2.* tand(beta3).* (z+delta_z)) ./ (tand(beta3).^2);
+    table(i,5) = a - ((z + delta_z)./tand(beta1));
+    table(i,6) = 0.64 - table(i,2) - table(i,3) - table(i,4) - table(i,5);
+    table(i,7) = 0.36;
+    table(i,8) = ( (p_1.*table(i,2)) + (p_2.*table(i,3)) + (p_3.*table(i,4)) +...
+        (p_l.*table(i,5)) + (p_1.*table(i,6)) + (p_1.*table(i,7)) ) - (P_upper .* c);
+    table(i,9) = table(i,8) .* c .* delta_z; 
+    table(i,10)= table(i,9).* cosd(alpha);
+    table(i,11)= table(i,9).* sind(alpha);
+    
+    z = delta_z + z;
+    
+    elseif z >= h_total,
+        table(i,1) = delta_z+z;
+        table(i,2) = table(i-1,2) - (delta_z./tand(theta1)) + (delta_z./tand(beta1));
+        table(i,3) = 0;
+        table(i,4) = table(i-1,4) - (delta_z./tand(theta1)) + (delta_z./tand(beta3));
+        table(i,5) = (0.64.*c) - table(i,4) - table(i,2);
+        table(i,6) = 0;
+        table(i,7) = 0.36;
+        table(i,8) = ( (p_1.*table(i,2)) + (p_2.*table(i,3)) + (p_3.*table(i,4)) +...
+            (p_l.*table(i,5)) + (p_1.*table(i,6)) + (p_1.*table(i,7)) ) - (P_upper .* c);
+        table(i,9) = table(i,8) .* c .* delta_z; 
+        table(i,10)= table(i,9).* cosd(alpha);
+        table(i,11)= table(i,9).* sind(alpha);
+    
+        z = delta_z + z;
+    end
+end
+        
+total_force = 2.* sum(table(:,9))
+Lift        = 2.* sum(table(:,10))
+Drag        = 2.* sum(table(:,11))
+L_D         = Lift/Drag
+        
+        
+       
+        
+        
